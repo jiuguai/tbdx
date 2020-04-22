@@ -1,0 +1,7 @@
+*.pyc
+*-checkpoint.ipynb
+.ipynb_checkpoints/
+/__pycache__
+/.spyproject
+/zero/test/*.exe
+/*/test.log
