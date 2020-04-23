@@ -134,7 +134,7 @@ class ExtrClassId():
                  'contentTagId': None,
                  'groupTagId': None,
                  'currPageNo': i,
-                 'limit': 500
+                 'limit': LIMIT_ITEMS_COURSE
             }
 
             search_data = json.dumps(search_data)
@@ -169,13 +169,15 @@ class ExtrClassId():
             if len(js['data']) and len(js['data']['model']['datas']):
                 ds = js['data']['model']['datas']
                 class_ids = class_ids|{x['id'] for x in js['data']['model']['datas']}
-                if len(ds) < LIMIT_ITEMS:
+                if len(ds) < LIMIT_ITEMS_COURSE:
                     break
             else:
                 break
 
-        self.redis_con.sadd('class:ids', *class_ids)
 
+        logger.debug('\n======= course class_ids:%s =======' %(len(class_ids)))
+        self.redis_con.sadd('class:ids', *class_ids)
+        return class_ids
 
     async def ext_class_id(self,  reverse_save=False):
         
@@ -227,7 +229,7 @@ class ExtrClassId():
                                 
                                 self.redis_con.lpush(lname1,json.dumps(data))
                             self.v_count += len(r)
-                            print("v_count:%s  s_key:%s" %(self.v_count,search_key))
+                            print("v_count:%s add %s s_key:%s " %(self.v_count,len(r),search_key))
                         else:
                             ret = js['ret'][0]
                             if ret.startswith('FAIL_SYS_TOKEN_EXOIRED'):
@@ -239,7 +241,7 @@ class ExtrClassId():
                             elif not ret.startswith('SUCCESS'):
                                 self.redis_con.lpush(lname2,json.dumps(data))
                             elif ret.startswith('SUCCESS'):
-                                logger.warning("%s \n%s" %(search_key,params), )
+                                logger.warning("%s \n%s" %(search_key,js), )
 
                 except asyncio.TimeoutError:
                     self.redis_con.lpush(lname2,json.dumps(data))
@@ -256,7 +258,8 @@ class ExtrClassId():
             'class:ids',
             'class:ids_r',
             'class:details', 
-            "class:future"
+            "class:future",
+            "class:future_bak",
             )
         label_ids = self.get_search_label()
         self.save_search_params(label_ids)
@@ -271,10 +274,14 @@ class ExtrClassId():
             reverse_save = not reverse_save
             time.sleep(sleep_time)
 
-
+        s_ids = self.redis_con.smembers('class:ids')
+        
+        logger.debug('\n======= class_ids:%s =======' %(self.redis_con.scard('class:ids')))
         print('提取course中classId')
-        self.ext_course_classids()
+        class_ids = self.ext_course_classids()
 
+        logger.debug('\n======= class_ids:%s =======' %(self.redis_con.scard('class:ids')))
+        logger.debug('\nis future==== %s' %(set(s_ids)- class_ids))
 
 #
 
@@ -372,15 +379,18 @@ class ExtractClassDetail():
 
             class_id = self.redis_con.spop(sname1)
 
+    async def save_future_detail(self, reverse_save=False):
+        url = 'https://idaxue.taobao.com/learn/class/detail.jhtml'
+
     def save_mysql(self, class_details):
 
         conn = pymysql.connect(**MYSQL_DIC)
         cursor = conn.cursor()
         sql = """insert into 
             class_details(class_id, class_name, ww_id, org_name, lecturer, assistant,
-            video_num,student_num
+            video_num,student_num,lecturer_ww,assistant_ww
             ) 
-            values(%s, %s, %s, %s, %s, %s, %s, %s)
+            values(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
 
         """
         cursor.execute('delete from class_details')
@@ -394,11 +404,17 @@ class ExtractClassDetail():
                 ww_id = r['assistant'][0].get('nick', None)
                 orgName = r.get('orgName',"")
                 lecturer = ','.join([ass['name'] for ass in r['lecturer']])
+                lecturer_ww = ','.join([ass['nick'] for ass in r['lecturer']])
+
                 assistant = ','.join([ass['name'] for ass in r['assistant']])
+                assistant_ww = ','.join([ass['nick'] for ass in r['assistant']])
+
+
+
                 video_num = r.get('sectionNum', 0)
                 stu_num = r.get('studentNum', 0)
 
-                l = [int(class_id), r.get('className',''),ww_id,orgName,lecturer,assistant,video_num, stu_num]
+                l = [int(class_id), r.get('className',''),ww_id,orgName,lecturer,assistant,video_num, stu_num, lecturer_ww, assistant_ww]
                 data_l.append(l)
                 
             if len(data_l) > 99:
@@ -453,11 +469,65 @@ def run():
 
 if __name__ == '__main__':
     
-    redis_con = redis.Redis(**REDIS_CON)
+    url = "https://h5api.m.taobao.com/h5/mtop.taobao.tbdx.learn.wireless.class.detail/1.0/"
+    search_data = {
+        'classId':int('100001140')
+    }
+
+    search_data = json.dumps(search_data)
+    s = str(int(time.time() * 1000 // 1))
+    headers = {
+        "accept": "*/*",
+        "accept-encoding": "gzip, deflate, br",
+        "accept-language": "zh-CN,zh;q=0.9,en;q=0.8",
+        "cache-control": "no-cache",
+        "cookie": cookies,
+        "pragma": "no-cache",
+        "referer": "https://idaxue.taobao.com/chapter/content.jhtml",
+        "sec-fetch-dest": "script",
+        "sec-fetch-mode": "no-cors",
+        "sec-fetch-site": "same-site",
+        "user-agent": "Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4115.5 Safari/537.36"
+    }
+
+    key = token + "&" + s + "&" + app_key + "&" +search_data
+    sign = md5(key.encode('utf-8')).hexdigest()
+    params = {
+        'jsv': '2.4.16',
+        'appKey': app_key,
+        't': s,
+        'sign':sign,
+        'api': 'mtop.taobao.tbdx.learn.wireless.class.detail',
+        'type': 'jsonp',
+        'v': '1.0',
+        'dataType': 'jsonp',
+        'callback': 'mtopjsonp7',
+        'data': search_data
+        
+
+    }
+    rep = requests.get(url,headers=headers,params=params)
+    print(rep.text[12:-1])
+
+
+
+
+    # redis_con = redis.Redis(**REDIS_CON)
+
+    # ex = ExtrClassId(redis_con)
+    # url = 'https://idaxue.taobao.com/learn/class/detail.jhtml'
+    # params = {
+    #     'classId':'100001828'
+    # }
+    # rep = requests.get(url,params=params, headers=ex.headers)
+    # print(rep.json())
 
     # 获取搜索classId
-    ExtrClassId(redis_con)()
-    ExtractClassDetail(redis_con)()
+    # ExtrClassId(redis_con)()
+    # ExtractClassDetail(redis_con)()
+    # 
+    
+
 
 # conn = pymysql.connect(**MYSQL_MALL_DIC)
 # cursor = conn.cursor()

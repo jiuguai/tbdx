@@ -1,12 +1,12 @@
 import logging
 import redis
 
-cookies = "thw=cn; enc=ZWcaGPmb814mOAQRFxtIGnsaXouiz7BVmJ4i4oZe3mpxbCV6q7pCborUvLZBe84a9wVC7Yef%2F9IrA1dzdz1eOQ%3D%3D; hng=CN%7Czh-CN%7CCNY%7C156; t=81f924a6459c4adefacb9fad5da3f530; cna=zCHQFjs6DVsCAd7wcizXMEpY; lgc=%5Cu96C60%5Cu6781; tracknick=%5Cu96C60%5Cu6781; mt=ci=14_1; cookie2=1fda1c65809efe4d0669d30e6a3807f0; _tb_token_=e3b7beb5ed51b; _samesite_flag_=true; dnk=%5Cu96C60%5Cu6781; _m_h5_tk=9a38415dafbb6a0f67b209683dc6351f_1587571214494; _m_h5_tk_enc=da645b8ec2de8307920cf1829b80091c; sgcookie=Eck9GjhJAnDdlUWeAQKLB; unb=2187843634; uc1=cookie21=URm48syIYB%2Fc&cookie16=Vq8l%2BKCLySLZMFWHxqs8fwqnEw%3D%3D&pas=0&cookie15=WqG3DMC9VAQiUQ%3D%3D&cookie14=UoTUPcln85oLmQ%3D%3D&existShop=false; uc3=nk2=3zY0LDQ%3D&id2=UUkGVJHeIputLA%3D%3D&lg2=UtASsssmOIJ0bQ%3D%3D&vt3=F8dBxGR2UmNkPsWDSeA%3D; csg=fff2be1d; cookie17=UUkGVJHeIputLA%3D%3D; skt=179b6c82e3577cf4; existShop=MTU4NzU2MjU4MQ%3D%3D; uc4=id4=0%40U2uKc%2BNfWQRDgT3ckBVs2Jhciett&nk4=0%403cIrCkqmW75GQX%2BQENukwQ%3D%3D; _cc_=W5iHLLyFfA%3D%3D; _l_g_=Ug%3D%3D; sg=%E6%9E%814e; _nk_=%5Cu96C60%5Cu6781; cookie1=AQDJRq7KERyeA54kdBKvYSTlzCWFssLvmeqxKIpw6F4%3D; tfstk=cKtPBA_4Q0nrfcivWgIFFAzE7R7RZ7KHfqWdrFz5BBZSbObli8Ndn74DgCCtmaf..; l=eBT96RbHQiKBuRF6BO5aPurza77T0IRb8sPzaNbMiIHca69F9FT4-NQcDHdkWdtjgt5V2etrYEh7_RHyJPU38EweqVxbuVas-wp68e1..; isg=BPj4Fhvt0vsi_z6NbPfrWuAxyaaKYVzr7RvCRjJp3zPmTZk32nHFehArBUV9HRTD"
+cookies = "thw=cn; enc=ZWcaGPmb814mOAQRFxtIGnsaXouiz7BVmJ4i4oZe3mpxbCV6q7pCborUvLZBe84a9wVC7Yef%2F9IrA1dzdz1eOQ%3D%3D; hng=CN%7Czh-CN%7CCNY%7C156; t=81f924a6459c4adefacb9fad5da3f530; cna=zCHQFjs6DVsCAd7wcizXMEpY; lgc=%5Cu96C60%5Cu6781; tracknick=%5Cu96C60%5Cu6781; mt=ci=14_1; cookie2=18c2cc39af38c8de685563c83259e6b1; _tb_token_=3aa3fa3853e9a; _m_h5_tk=33cc15cb349838496cdcbc6fe164c48a_1587641576653; _m_h5_tk_enc=ad0f03c8ef63605cae94610a85533c96; _samesite_flag_=true; sgcookie=EABAMomV8n1M2nWg8PbHh; unb=2187843634; uc1=existShop=false&cookie15=Vq8l%2BKCLz3%2F65A%3D%3D&pas=0&cookie21=W5iHLLyFeYTE&cookie16=URm48syIJ1yk0MX2J7mAAEhTuw%3D%3D&cookie14=UoTUPcqfHy2GrQ%3D%3D; uc3=vt3=F8dBxGR1S2lQ1%2FUbwZ0%3D&id2=UUkGVJHeIputLA%3D%3D&nk2=3zY0LDQ%3D&lg2=V32FPkk%2Fw0dUvg%3D%3D; csg=4a6dadda; cookie17=UUkGVJHeIputLA%3D%3D; dnk=%5Cu96C60%5Cu6781; skt=cfe31ae55be41255; existShop=MTU4NzYzMzMyMA%3D%3D; uc4=nk4=0%403cIrCkqmW75GQXyhmy8HJQ%3D%3D&id4=0%40U2uKc%2BNfWQRDgT3ckBVs21zUd6WH; _cc_=UtASsssmfA%3D%3D; _l_g_=Ug%3D%3D; sg=%E6%9E%814e; _nk_=%5Cu96C60%5Cu6781; cookie1=AQDJRq7KERyeA54kdBKvYSTlzCWFssLvmeqxKIpw6F4%3D; tfstk=cTxOBy2AKXcG0i9Nzn3hczL08QDhZLuOif1zDxNw1uqIDFEAi9xk2_4LfTFOvvC..; isg=BD8_wg-QXdfBHVk4T5LUZ1MczhPJJJPG_qZlk9EM2-414F9i2fQjFr3yIrAeo2s-; l=eBT96RbHQiKBuAgsBOfaFurza77OSIRYYuPzaNbMiT5PO7CB5AUPWZjXRVL6C3GVh602R3oekbNwBeYBqQAonxvTtdBHzUkmn"
 token = list(filter(lambda x:x.startswith('_m_h5_tk='),cookies.replace(' ','').split(';')))[0].split('=')[1].split('_')[0]
 app_key = "12574478"
 
-
-LIMIT_ITEMS = 500
+LIMIT_ITEMS_COURSE = 500
+LIMIT_ITEMS = 20
 
 MYSQL_DIC = {
     "user":"root",
@@ -27,6 +27,7 @@ REDIS_CON = {
 
 
 logger = logging.getLogger()
+logger.setLevel(logging.DEBUG)
 formatter = logging.Formatter('%(asctime)s %(filename)s [%(lineno)s] - %(levelname)s : %(threadName)s: %(message)s')
 fh = logging.FileHandler('test.log',encoding='utf-8') 
 fh.setFormatter(formatter)
